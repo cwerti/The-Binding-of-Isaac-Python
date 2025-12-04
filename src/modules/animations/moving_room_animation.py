@@ -17,16 +17,21 @@ class MovingRoomAnimation:
         self.is_over = False
 
         self.from_x, self.from_y = 0, 0
-        if direction == consts.Moves.UP:
-            self.to_x, self.to_y = 0, -consts.GAME_HEIGHT
-        elif direction == consts.Moves.DOWN:
-            self.to_x, self.to_y = 0, consts.GAME_HEIGHT
-        elif direction == consts.Moves.RIGHT:
-            self.to_x, self.to_y = consts.GAME_WIDTH, 0
-        elif direction == consts.Moves.LEFT:
-            self.to_x, self.to_y = -consts.GAME_WIDTH, 0
-        else:
-            raise ValueError("Неправильный директион...")
+
+        # Условная сложность
+        direction_offsets = {
+            consts.Moves.UP: (0, -consts.GAME_HEIGHT),
+            consts.Moves.DOWN: (0, consts.GAME_HEIGHT),
+            consts.Moves.RIGHT: (consts.GAME_WIDTH, 0),
+            consts.Moves.LEFT: (-consts.GAME_WIDTH, 0),
+        }
+
+        offset = direction_offsets.get(direction)
+        if offset is None:
+            raise ValueError("Неправильный direction...")
+
+        self.to_x, self.to_y = offset
+
         self.vx, self.vy = (
             self.vx_speed * direction.value[0],
             self.vy_speed * direction.value[1],
