@@ -56,19 +56,17 @@ class MovingRoomAnimation:
         self.to_x += self.vx * delta_t
         self.to_y += self.vy * delta_t
 
-        # Способ рабочий, но если мало фепеес, то может сломаться)
-        # if abs(self.to_x) < 10 and abs(self.to_y) < 10:
-        #   self.is_over = True
+        #условная сложность
+        completion_conditions = {
+            consts.Moves.UP: self.to_y >= 0,
+            consts.Moves.DOWN: self.to_y <= 0,
+            consts.Moves.RIGHT: self.to_x <= 0,
+            consts.Moves.LEFT: self.to_x >= 0,
+        }
 
-        if self.direction == consts.Moves.UP:
-            self.is_over = self.to_y >= 0
-        elif self.direction == consts.Moves.DOWN:
-            self.is_over = self.to_y <= 0
-        elif self.direction == consts.Moves.RIGHT:
-            self.is_over = self.to_x <= 0
-        elif self.direction == consts.Moves.LEFT:
-            self.is_over = self.to_x >= 0
-        else:
+        self.is_over = completion_conditions.get(self.direction, False)
+
+        if self.direction not in completion_conditions:
             raise ValueError(
                 "Оно выдаёт ошибку за неверный direction ещё в ините, поэтому зачем ты что-то меняешь? А?",
             )
