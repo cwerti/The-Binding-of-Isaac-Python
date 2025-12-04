@@ -6,6 +6,7 @@ from src.utils.funcs import create_data_base
 pg.init()
 pg.font.init()
 pg.mixer.init()
+pg.mixer.music.set_volume(0.01)
 screen = pg.display.set_mode((consts.WIDTH, consts.HEIGHT))
 
 from src.modules.game import Game, start_game
