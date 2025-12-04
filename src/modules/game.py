@@ -26,7 +26,7 @@ from src.modules.characters.main_hero import Player
 from src.modules.handlers.main_hero_actions import MainHeroActionsHandler
 from src.modules.levels.level import Level
 from src.modules.levels.room import Room
-from src.modules.main_menu.start_screen import start_screen
+from src.modules.main_menu.start_screen import StartScreen
 from src.modules.menus.stats_line import Stats
 from src.utils.funcs import load_image, load_sound
 
@@ -41,7 +41,8 @@ def start_game(main_screen):
     pg.display.set_icon(load_image("images/icon/64x64.ico"))
     pg.mixer.music.load(load_sound("sounds/main_theme.mp3", return_path=True))
     pg.mixer.music.play()
-    return start_screen(main_screen)
+    start_screen = StartScreen(main_screen)
+    return start_screen.run()
 
 
 # Заглушка (переделать!)
