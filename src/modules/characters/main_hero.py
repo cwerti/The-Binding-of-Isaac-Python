@@ -14,6 +14,7 @@ from src.consts import (
 from src.modules.animations.animation import Animation
 from src.modules.base_classes.based.base_tear import BaseTear
 from src.modules.base_classes.based.move_sprite import MoveSprite
+from src.utils.data_structures import HeartAmount
 from src.utils.funcs import cell_to_pixels, crop, get_direction, load_image, load_sound
 
 
@@ -579,23 +580,30 @@ class Player(MoveSprite):
         self.head.set_tear_collide_groups(tear_collide_groups)
         self.collide_groups = required_groups if self.is_flying else hero_collide_groups
 
-    def pickup_heart(self, count: int, heart_type: HeartsTypes) -> bool:
+    def pickup_heart(self, count: int | HeartAmount, heart_type: HeartsTypes) -> bool:
+
         """
         Поднятие сердца.
 
-        :param count: кол-во поднятых хп.
+        :param count: количество поднятых хп.
         :param heart_type: какой тип сердца.
         :return: True - сердце возможно поднять. False - хп полное.
         """
+        # Преобразуем HeartAmount в интовое значение, если это enum
+        if isinstance(count, HeartAmount):
+            hp_value = count.value
+        else:
+            hp_value = count
+
         if heart_type == HeartsTypes.RED:
             if self.red_hp >= self.max_red_hp:
                 return False
-            self.red_hp += count
+            self.red_hp += hp_value
             self.red_hp = min(self.red_hp, self.max_red_hp)
         elif heart_type == HeartsTypes.BLUE:
-            self.blue_hp += count
+            self.blue_hp += hp_value
         elif heart_type == HeartsTypes.BLACK:
-            self.black_hp += count
+            self.black_hp += hp_value
         return True
 
     def is_buy(self, count: int, price: int, heart_type: HeartsTypes | None) -> bool:

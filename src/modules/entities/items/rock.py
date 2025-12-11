@@ -58,10 +58,9 @@ class Rock(BaseItem):
 
     def set_image(self):
         texture_x = 0
-        texture_y = (
-            random.choices(list(range(1, 5)), [0.333, 0.333, 0.333, 0.001])[0]
-            * CELL_SIZE
-        )
+        probabilities = [0.333, 0.333, 0.333, 0.001]
+        chosen_index = random.choices(list(range(1, 5)), probabilities)[0]
+        texture_y = chosen_index * CELL_SIZE
         self.with_treasure = texture_y == CELL_SIZE * 4
         for i, floor_type in enumerate(FloorsTypes):
             if floor_type == self.floor_type:

@@ -4,6 +4,7 @@ import pygame as pg
 
 from src.consts import PICKUP_LOOT, HeartsTypes
 from src.modules.base_classes import PickMovableItem
+from src.utils.data_structures import HeartAmount
 from src.utils.funcs import crop, load_image, load_sound
 
 heart_width, heart_height = 56, 56  # Размеры клетки текстурки
@@ -40,22 +41,23 @@ class PickHeart(PickMovableItem):
     black_hearts = heart_images[2]
 
     pickup_sound = load_sound("sounds/heart_pickup.wav")
+    # Одержимость простыми типами
     hearts: dict[
         HeartsTypes,
-        [HeartsTypes, dict[int, tuple[pg.Surface, pg.mixer.Sound]]],
+        dict[HeartAmount, tuple[pg.Surface, pg.mixer.Sound]],
     ] = {
         HeartsTypes.RED: {
-            1: (red_hearts[1], pickup_sound),
-            2: (red_hearts[0], pickup_sound),
-            4: (red_hearts[2], pickup_sound),
+            HeartAmount.HALF: (red_hearts[1], pickup_sound),
+            HeartAmount.FULL: (red_hearts[0], pickup_sound),
+            HeartAmount.DOUBLE: (red_hearts[2], pickup_sound),
         },
         HeartsTypes.BLUE: {
-            1: (blue_hearts[1], pickup_sound),
-            2: (blue_hearts[0], pickup_sound),
+            HeartAmount.HALF: (blue_hearts[1], pickup_sound),
+            HeartAmount.FULL: (blue_hearts[0], pickup_sound),
         },
         HeartsTypes.BLACK: {
-            1: (black_hearts[1], pickup_sound),
-            2: (black_hearts[0], pickup_sound),
+            HeartAmount.HALF: (black_hearts[1], pickup_sound),
+            HeartAmount.FULL: (black_hearts[0], pickup_sound),
         },
     }
 
@@ -89,13 +91,13 @@ class PickHeart(PickMovableItem):
                 [0.75, 0.20, 0.05],
             )[0]
             if self.heart_type == HeartsTypes.RED:
-                self.count = random.choices([1, 2, 4], [0.75, 0.20, 0.05])[0]
+                self.count = random.choices([HeartAmount.HALF, HeartAmount.FULL, HeartAmount.DOUBLE], [0.75, 0.20, 0.05])[0]
             else:
-                self.count = random.choices([1, 2], [0.25, 0.75])[0]
+                self.count = random.choices([HeartAmount.HALF, HeartAmount.FULL], [0.25, 0.75])[0]
 
         elif not self.count:
             self.heart_type = HeartsTypes.RED
-            self.count = random.choices([1, 2, 4], [0.75, 0.20, 0.05])[0]
+            self.count = random.choices([HeartAmount.HALF, HeartAmount.FULL, HeartAmount.DOUBLE], [0.75, 0.20, 0.05])[0]
 
         self.image, self.pick_sound = PickHeart.hearts[self.heart_type][self.count]
 
@@ -103,12 +105,14 @@ class PickHeart(PickMovableItem):
         """
         Подбор предмета.
         """
+        # Если self.count - объект HeartAmount, передаем его значение
+        count_value = self.count.value if isinstance(self.count, HeartAmount) else self.count
         pg.event.post(
             pg.event.Event(
                 PICKUP_LOOT,
                 {
                     "item": self,
-                    "count": self.count,
+                    "count": count_value,
                     "heart_type": self.heart_type,
                     "self": self,
                 },

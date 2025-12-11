@@ -63,7 +63,8 @@ class MainHeroActionsHandler:
         if "max_hp" in boosts:
             self.main_hero.max_red_hp += boosts["max_hp"] * 2
         if "heal_hp" in boosts:
-            self.main_hero.pickup_heart(boosts["heal_hp"] * 2, HeartsTypes.RED)
+            from src.utils.data_structures import HeartAmount
+            self.main_hero.pickup_heart(HeartAmount.from_int(boosts["heal_hp"] * 2), HeartsTypes.RED)
         if "damage" in boosts:
             self.main_hero.head.shot_damage += boosts["damage"]
         if "speed" in boosts:

@@ -1,6 +1,7 @@
 import collections
 
 from src import consts
+from src.utils.data_structures import Vector2
 
 
 def valid_coords(x: int, y: int, width: int, height: int) -> bool:
@@ -34,18 +35,20 @@ def get_neighbors_coords(
     :param use_diagonals: Использовать ли диагональные пути.
     :return: Список со всеми координатами соседей, в которые можно пройти.
     """
-    moves = [(0, -1), (0, 1), (1, 0), (-1, 0)]
+    # Используем Vector2 для представления направлений
+    # Одержимость простыми типами данных
+    moves = [Vector2(0, -1), Vector2(0, 1), Vector2(1, 0), Vector2(-1, 0)]
     if use_diagonals:
-        moves += [(1, 1), (-1, -1), (1, -1), (-1, 1)]
+        moves += [Vector2(1, 1), Vector2(-1, -1), Vector2(1, -1), Vector2(-1, 1)]
     map_width, map_height = len(rooms[0]), len(rooms)
     ignored = [consts.RoomsTypes.EMPTY]
     if ignore_secret:
         ignored.append(consts.RoomsTypes.SECRET)
     return [
-        (x + i, y + j)
-        for i, j in moves
-        if valid_coords(x + i, y + j, map_width, map_height)
-        and rooms[y + j][x + i] not in ignored
+        (x + move.x, y + move.y)
+        for move in moves
+        if valid_coords(x + move.x, y + move.y, map_width, map_height)
+        and rooms[y + move.y][x + move.x] not in ignored
     ]
 
 
