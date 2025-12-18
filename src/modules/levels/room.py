@@ -223,15 +223,33 @@ class Room(RoomTextures):
         """
         Рандомная генерация вещей в комнате без какой-либо особой логики :)
         """
-        centerx, centery = consts.ROOM_WIDTH // 2, consts.ROOM_HEIGHT // 2
-
         if self.room_type == consts.RoomsTypes.SPAWN:
             return
 
-        if (
-            self.room_type == consts.RoomsTypes.BOSS
-            and self.floor_type == consts.FloorsTypes.CATACOMBS
-        ):
+        if self.room_type == consts.RoomsTypes.BOSS:
+            self._setup_boss_room()
+            return
+
+        if self.room_type == consts.RoomsTypes.TREASURE:
+            self._setup_treasure_room()
+            return
+
+        if self.room_type == consts.RoomsTypes.SHOP:
+            self._setup_shop_room()
+            return
+
+        if self.room_type == consts.RoomsTypes.SECRET:
+            self._setup_secret_room()
+            return
+
+        # For regular rooms, set up random content
+        self._setup_regular_room_content()
+
+    def _setup_boss_room(self):
+        """Set up boss room with appropriate boss based on floor type."""
+        centerx, centery = consts.ROOM_WIDTH // 2, consts.ROOM_HEIGHT // 2
+
+        if self.floor_type == consts.FloorsTypes.CATACOMBS:
             Teratoma(
                 (6, 3),
                 40,
@@ -244,11 +262,7 @@ class Room(RoomTextures):
                 self.bosses,
                 self.blowable,
             )
-
-        if (
-            self.room_type == consts.RoomsTypes.BOSS
-            and self.floor_type == consts.FloorsTypes.BASEMENT
-        ):
+        elif self.floor_type == consts.FloorsTypes.BASEMENT:
             Fistula(
                 (6, 3),
                 40,
@@ -261,11 +275,7 @@ class Room(RoomTextures):
                 self.bosses,
                 self.blowable,
             )
-
-        if (
-            self.room_type == consts.RoomsTypes.BOSS
-            and self.floor_type == consts.FloorsTypes.DEPTHS
-        ):
+        elif self.floor_type == consts.FloorsTypes.DEPTHS:
             Duke(
                 (6, 3),
                 self.paths,
@@ -277,11 +287,7 @@ class Room(RoomTextures):
                 self.bosses,
                 self.blowable,
             )
-
-        if (
-            self.room_type == consts.RoomsTypes.BOSS
-            and self.floor_type == consts.FloorsTypes.CAVES
-        ):
+        elif self.floor_type == consts.FloorsTypes.CAVES:
             Envy(
                 (6, 3),
                 40,
@@ -294,11 +300,7 @@ class Room(RoomTextures):
                 self.bosses,
                 self.blowable,
             )
-
-        if (
-            self.room_type == consts.RoomsTypes.BOSS
-            and self.floor_type == consts.FloorsTypes.WOMB
-        ):
+        elif self.floor_type == consts.FloorsTypes.WOMB:
             Pudge(
                 (6, 3),
                 40,
@@ -312,33 +314,38 @@ class Room(RoomTextures):
                 self.blowable,
             )
 
-        if self.room_type == consts.RoomsTypes.BOSS:
-            self.is_friendly = False
-            Trapdoor(self.colliadble_group, self.doors)
-            return
+        self.is_friendly = False
+        Trapdoor(self.colliadble_group, self.doors)
 
-        if self.room_type == consts.RoomsTypes.TREASURE:
-            pedestal = Pedestal(
-                (centerx, centery),
-                self.obstacles,
-                self.colliadble_group,
-                self.other,
-            )
-            pedestal.set_artifact(random.choice(Room.artifacts), self.artifacts_group)
-            return
+    def _setup_treasure_room(self):
+        """Set up treasure room with pedestal and artifact."""
+        centerx, centery = consts.ROOM_WIDTH // 2, consts.ROOM_HEIGHT // 2
+        pedestal = Pedestal(
+            (centerx, centery),
+            self.obstacles,
+            self.colliadble_group,
+            self.other,
+        )
+        pedestal.set_artifact(random.choice(Room.artifacts), self.artifacts_group)
 
-        if self.room_type == consts.RoomsTypes.SHOP:
-            for i, items in zip(
-                range(-2, 2 + 1, 2),
-                (Room.artifacts, Room.loot, Room.loot),
-            ):
-                ShopItem((centerx + i, centery), random.choice(items), self.other)
-            return
+    def _setup_shop_room(self):
+        """Set up shop room with shop items."""
+        centerx, centery = consts.ROOM_WIDTH // 2, consts.ROOM_HEIGHT // 2
+        for i, items in zip(
+            range(-2, 2 + 1, 2),
+            (Room.artifacts, Room.loot, Room.loot),
+        ):
+            ShopItem((centerx + i, centery), random.choice(items), self.other)
 
-        if self.room_type == consts.RoomsTypes.SECRET:
-            for i in range(-2, 2 + 1, 2):
-                self.set_pickable((centerx + i, centery))
-            return
+    def _setup_secret_room(self):
+        """Set up secret room with pickable items."""
+        centerx, centery = consts.ROOM_WIDTH // 2, consts.ROOM_HEIGHT // 2
+        for i in range(-2, 2 + 1, 2):
+            self.set_pickable((centerx + i, centery))
+
+    def _setup_regular_room_content(self):
+        """Set up content for regular rooms with random entities."""
+        centerx, centery = consts.ROOM_WIDTH // 2, consts.ROOM_HEIGHT // 2
 
         enemies = 0
         max_enemies = 9
