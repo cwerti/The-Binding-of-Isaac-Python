@@ -5,6 +5,7 @@ import pygame as pg
 
 from src import consts
 from src.modules.base_classes import BaseEnemy, BaseItem, ShootingEnemy
+from src.modules.base_classes.items.pick_movable_item import PickMovableItem
 from src.modules.characters.main_hero import Player
 from src.modules.enemies import Guts, Host, Maw
 from src.modules.enemies.duke import Duke
@@ -858,7 +859,6 @@ class Room(RoomTextures):
     def set_bomb(self, event: pg.event.Event):
         xy_pos = event.pos
         if room_pos := pixels_to_cell(xy_pos):
-            # Define the groups needed for bombs
             obstacle_groups = (self.colliadble_group, self.movement_borders, self.other)
             target_groups = (self.blowable, self.other, self.main_hero_group)
             BlowBomb(
@@ -871,27 +871,26 @@ class Room(RoomTextures):
 
     def set_pickable(self, xy_pos: tuple[int, int]):  # Клетка
         chance = random.random()
-        if chance > 0.75:
-            PickMoney(
-                xy_pos,
-                (self.colliadble_group, self.movement_borders, self.other),
-                self.other,
-            )
-        elif chance > 0.50:
-            PickBomb(
-                xy_pos,
-                (self.colliadble_group, self.movement_borders, self.other),
-                self.other,
-            )
-        elif chance > 0.25:
-            PickHeart(
-                xy_pos,
-                (self.colliadble_group, self.movement_borders, self.other),
-                self.other,
-            )
-        elif chance < 0.20:
+
+        possible_items = [
+            (0.75, PickMoney),
+            (0.50, PickBomb),
+            (0.25, PickHeart),
+            (0.20, PickKey),
+        ]
+        for threshold, item_class in possible_items:
+            if chance > threshold:
+                item_groups = (self.colliadble_group, self.movement_borders, self.other)
+                item_class(
+                    xy_pos,
+                    item_groups,
+                    self.other,
+                )
+                break
+        else:
+            item_groups = (self.colliadble_group, self.movement_borders, self.other)
             PickKey(
                 xy_pos,
-                (self.colliadble_group, self.movement_borders, self.other),
+                item_groups,
                 self.other,
             )
