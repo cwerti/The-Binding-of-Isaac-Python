@@ -846,6 +846,15 @@ class Room(RoomTextures):
 
         self.main_hero.render(screen)
 
+    def kill_all_enemies_and_bosses(self):
+        """
+        Kill all enemies and bosses in the room.
+        """
+        for enemy in self.enemies.sprites():
+            enemy.death()
+        for boss in self.bosses.sprites():
+            boss.death()
+
     def set_bomb(self, event: pg.event.Event):
         xy_pos = event.pos
         if room_pos := pixels_to_cell(xy_pos):

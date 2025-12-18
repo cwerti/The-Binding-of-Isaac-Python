@@ -170,10 +170,8 @@ class Level:
         """
         Kill all enemies and bosses in the current room.
         """
-        for enemy in self.current_room.enemies.sprites():
-            enemy.death()
-        for boss in self.current_room.bosses.sprites():
-            boss.death()
+        if self.current_room:
+            self.current_room.kill_all_enemies_and_bosses()
 
     def set_bomb(self, event: pg.event.Event):
         """
@@ -181,7 +179,8 @@ class Level:
 
         :param event: bomb event
         """
-        self.current_room.set_bomb(event)
+        if self.current_room:
+            self.current_room.set_bomb(event)
 
     def update(self, delta_t: float):
         if self.is_moving:
