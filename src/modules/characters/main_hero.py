@@ -14,7 +14,7 @@ from src.consts import (
 from src.modules.animations.animation import Animation
 from src.modules.base_classes.based.base_tear import BaseTear
 from src.modules.base_classes.based.move_sprite import MoveSprite
-from src.utils.data_structures import HeartAmount
+from src.utils.data_structures import HeartAmount, Health
 from src.utils.funcs import cell_to_pixels, crop, get_direction, load_image, load_sound
 
 
@@ -312,9 +312,7 @@ class Player(MoveSprite):
         self.score: int = 0  # кол-во очков
 
         # здоровье
-        self.red_hp: int = self.max_red_hp  # кол-во красных хп(половинки сердца)
-        self.blue_hp: int = 0  # аналогично красным, только синие
-        self.black_hp: int = 0  # аналогично красным, только чёрные
+        self.health: Health = Health(self.max_red_hp)  # объект здоровья
 
         self.count_bombs: int = 3  # кол-во бомб
         self.count_key: int = 0  # кол-во ключей
@@ -334,7 +332,6 @@ class Player(MoveSprite):
         self.flag_move_right: bool = False  # вправо
         self.flag_move_up: bool = False  # вверх
         self.is_move: bool = False  # движется ли ГГ
-        self.is_alive: bool = True  # живой ли персонаж
 
         # флаги коллизии
         self.x_collide: bool = False  # коллизия произошла слева или справа
@@ -355,6 +352,40 @@ class Player(MoveSprite):
 
         self.soul = Soul()  # душа ГГ
 
+    @property
+    def red_hp(self) -> int:
+        return self.health.red_hp
+
+    @red_hp.setter
+    def red_hp(self, value: int):
+        self.health.red_hp = value
+
+    @property
+    def blue_hp(self) -> int:
+        return self.health.blue_hp
+
+    @blue_hp.setter
+    def blue_hp(self, value: int):
+        self.health.blue_hp = value
+
+    @property
+    def black_hp(self) -> int:
+        return self.health.black_hp
+
+    @black_hp.setter
+    def black_hp(self, value: int):
+        self.health.black_hp = value
+
+    @property
+    def is_alive(self) -> bool:
+        """Check if player is alive based on red health."""
+        return self.health.is_alive()
+
+    @is_alive.setter
+    def is_alive(self, value: bool):
+        # is_alive is now computed from health, so setter doesn't change anything
+        pass
+
     def hurt(self, damage: int):
         """
         Получение урона.
@@ -362,14 +393,9 @@ class Player(MoveSprite):
         :param damage: полученный урон.
         """
         if self.timer > self.timer_hurt:
-            if self.blue_hp:
-                self.blue_hp -= damage
-            elif self.black_hp:
-                self.black_hp -= damage
-            else:
-                self.red_hp -= damage
+            self.health.subtract_health(damage)
             self.timer = 0
-            if self.red_hp > 0:
+            if self.health.red_hp > 0:
                 random.choice(Player.hurt_sounds).play()
             pg.event.post(pg.event.Event(GG_HURT))
 
@@ -596,14 +622,13 @@ class Player(MoveSprite):
             hp_value = count
 
         if heart_type == HeartsTypes.RED:
-            if self.red_hp >= self.max_red_hp:
+            if self.health.is_full_red_health():
                 return False
-            self.red_hp += hp_value
-            self.red_hp = min(self.red_hp, self.max_red_hp)
-        elif heart_type == HeartsTypes.BLUE:
-            self.blue_hp += hp_value
-        elif heart_type == HeartsTypes.BLACK:
-            self.black_hp += hp_value
+            self.health.add_health(heart_type, hp_value)
+            # Ensure we don't exceed max red health
+            self.red_hp = min(self.red_hp, self.health.max_red_hp)
+        elif heart_type == HeartsTypes.BLUE or heart_type == HeartsTypes.BLACK:
+            self.health.add_health(heart_type, hp_value)
         return True
 
     def is_buy(self, count: int, price: int, heart_type: HeartsTypes | None) -> bool:
@@ -666,7 +691,7 @@ class Player(MoveSprite):
 
         :param delta_t: время с прошлого кадра.
         """
-        if self.red_hp > 0:
+        if self.health.red_hp > 0:
             self.use_bombs_ticks += delta_t
             self.count_cadrs += 1
             self.count_cadrs %= 3

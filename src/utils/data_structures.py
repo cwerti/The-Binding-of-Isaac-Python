@@ -5,6 +5,7 @@
 
 from dataclasses import dataclass
 from enum import Enum
+from src.consts import HeartsTypes
 
 
 # одержимость простыми типами
@@ -72,3 +73,67 @@ class HeartAmount(Enum):
             return HeartAmount.FULL
         else:
             return HeartAmount.DOUBLE
+
+
+# одержимость простыми типами
+class Health:
+    """
+    Класс для представления здоровья персонажа.
+    Заменяет использование примитивных чисел для здоровья.
+    """
+    def __init__(self, max_red_hp: int = 6):
+        self.max_red_hp = max_red_hp
+        self.red_hp = max_red_hp  # кол-во красных хп (половинки сердца)
+        self.blue_hp = 0  # аналогично красным, только синие
+        self.black_hp = 0  # аналогично красным, только чёрные
+
+    def get_total_hp(self) -> int:
+        """Возвращает общее количество здоровья (в половинках сердец)."""
+        return self.red_hp + self.blue_hp + self.black_hp
+
+    def get_hp_by_type(self, heart_type: HeartsTypes) -> int:
+        """Возвращает количество здоровья определенного типа."""
+        if heart_type == HeartsTypes.RED:
+            return self.red_hp
+        elif heart_type == HeartsTypes.BLUE:
+            return self.blue_hp
+        elif heart_type == HeartsTypes.BLACK:
+            return self.black_hp
+        return 0
+
+    def add_health(self, heart_type: HeartsTypes, amount: int) -> None:
+        """Добавляет здоровье определенного типа."""
+        if heart_type == HeartsTypes.RED:
+            self.red_hp = max(0, self.red_hp + amount)
+        elif heart_type == HeartsTypes.BLUE:
+            self.blue_hp = max(0, self.blue_hp + amount)
+        elif heart_type == HeartsTypes.BLACK:
+            self.black_hp = max(0, self.black_hp + amount)
+
+    def subtract_health(self, damage: int) -> None:
+        """Вычитает урон из здоровья согласно приоритету: синие -> черные -> красные."""
+        remaining_damage = damage
+
+        # Сначала вычитаем из синих сердец
+        if remaining_damage > 0 and self.blue_hp > 0:
+            old_blue_hp = self.blue_hp
+            self.blue_hp = max(0, self.blue_hp - remaining_damage)
+            remaining_damage -= (old_blue_hp - self.blue_hp)
+
+        # Потом из черных сердец
+        if remaining_damage > 0 and self.black_hp > 0:
+            old_black_hp = self.black_hp
+            self.black_hp = max(0, self.black_hp - remaining_damage)
+            remaining_damage -= (old_black_hp - self.black_hp)
+
+        # Наконец из красных сердец
+        if remaining_damage > 0:
+            self.red_hp = max(0, self.red_hp - remaining_damage)
+
+    def is_alive(self) -> bool:
+        """Проверяет, жив ли персонаж (осталось ли красное здоровье)."""
+        return self.red_hp > 0
+
+    def is_full_red_health(self) -> bool:
+        """Проверяет, полностью ли заполнено красное здоровье."""
+        return self.red_hp >= self.max_red_hp
