@@ -114,8 +114,9 @@ class MovingEnemy(BaseEnemy, MoveSprite):
             return
 
         if self.flyable:  # Летающие летят напрямую ахахаха)
-            dx = self.main_hero.rect.centerx - self.rect.centerx
-            dy = self.main_hero.rect.centery - self.rect.centery
+            hero_x, hero_y = self.main_hero.get_position()
+            dx = hero_x - self.rect.centerx
+            dy = hero_y - self.rect.centery
             distance = math.hypot(dx, dy)
             if distance:
                 self.set_speed(self.speed * dx / distance, self.speed * dy / distance)
@@ -124,7 +125,7 @@ class MovingEnemy(BaseEnemy, MoveSprite):
             return
 
         self.move_ticks = 0
-        xy_end = self.main_hero.rect.center
+        xy_end = self.main_hero.get_position()
         xy_end = pixels_to_cell(xy_end)
         path_list = make_path_to_cell(self.room_graph, (self.x, self.y), xy_end)
         if not path_list or len(path_list) < 2:

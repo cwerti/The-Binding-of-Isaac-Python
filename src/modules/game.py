@@ -166,8 +166,7 @@ class Game(BaseGame):
 
         :param event: нажатая кнопка
         """
-        self.stats.update_minimap()
-        self.stats.update_hero_stats()
+        self.stats.update_all()
 
     def kill_all(self, event: pg.event.Event):
         """
@@ -176,12 +175,7 @@ class Game(BaseGame):
         :param event: нажатая кнопка
         """
         if event.key == pg.K_r:
-            for enemy in self.current_level.current_room.enemies.sprites():
-                enemy.death()
-            for boss in self.current_level.current_room.bosses.sprites():
-                boss.death()
-            # self.current_level.current_room.enemies.empty()
-            # self.current_level.current_room.bosses.empty()
+            self.current_level.kill_all_enemies_and_bosses()
 
     def set_bomb(self, event: pg.event.Event):
         """
@@ -190,7 +184,7 @@ class Game(BaseGame):
         :param event: нажатая кнопка
         """
         if event.type == USE_BOMB:
-            self.current_level.current_room.set_bomb(event)
+            self.current_level.set_bomb(event)
 
     def update(self, delta_t: float):
         """

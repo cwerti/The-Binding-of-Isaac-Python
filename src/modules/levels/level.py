@@ -166,6 +166,23 @@ class Level:
     def update_main_hero_collide_groups(self):
         self.main_hero.update_room_groups(*self.current_room.get_room_groups())
 
+    def kill_all_enemies_and_bosses(self):
+        """
+        Kill all enemies and bosses in the current room.
+        """
+        for enemy in self.current_room.enemies.sprites():
+            enemy.death()
+        for boss in self.current_room.bosses.sprites():
+            boss.death()
+
+    def set_bomb(self, event: pg.event.Event):
+        """
+        Set bomb in current room.
+
+        :param event: bomb event
+        """
+        self.current_room.set_bomb(event)
+
     def update(self, delta_t: float):
         if self.is_moving:
             self.is_moving.update(delta_t)

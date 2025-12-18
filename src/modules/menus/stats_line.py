@@ -35,6 +35,13 @@ class Stats:
         """
         self.hero_stats.update()
 
+    def update_all(self):
+        """
+        Обновление миникарты и статистики персонажа.
+        """
+        self.update_minimap()
+        self.update_hero_stats()
+
     def render(self, screen: pg.Surface):
         self.minimap.render(screen)
         self.hero_stats.render(screen)

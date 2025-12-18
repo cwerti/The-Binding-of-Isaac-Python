@@ -722,6 +722,14 @@ class Player(MoveSprite):
         """
         return self.vx, self.vy
 
+    def get_position(self) -> tuple[int, int]:
+        """
+        Возвращает позицию персонажа.
+
+        :return: координаты центра (x, y).
+        """
+        return self.rect.center
+
     def render(self, screen: pg.Surface):
         """
         Отрисовка персонажа и его слёз.

@@ -93,7 +93,7 @@ class ShootingEnemy(BaseEnemy):
         :return: Выстрелил ли.
         """
         # body
-        x, y = self.main_hero.rect.center
+        x, y = self.main_hero.get_position()
         dx = x - self.rect.centerx
         dy = y - self.rect.centery
         distance = math.hypot(dx, dy)

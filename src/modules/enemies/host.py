@@ -101,7 +101,7 @@ class Host(ShootingEnemy):
 
     def shot(self):
         # Проверка на расстояние, чтобы не стоял открытым не стреляя.
-        x, y = self.main_hero.rect.center
+        x, y = self.main_hero.get_position()
         dx = x - self.rect.centerx
         dy = y - self.rect.centery
         distance = math.hypot(dx, dy)

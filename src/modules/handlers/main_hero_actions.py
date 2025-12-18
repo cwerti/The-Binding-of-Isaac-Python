@@ -30,7 +30,7 @@ class MainHeroActionsHandler:
         if event.key == pg.K_e:
             if self.main_hero.activate_bombs():
                 pg.event.post(
-                    pg.event.Event(USE_BOMB, {"pos": self.main_hero.rect.center}),
+                    pg.event.Event(USE_BOMB, {"pos": self.main_hero.get_position()}),
                 )
 
     def loot_pickup_handler(self, event: pg.event.Event):
